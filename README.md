@@ -34,8 +34,7 @@ Los charts de Helm para cada microservicio se encuentran organizados dentro del 
 ## Como instalar el chart manualmente
 `helm install <name> charts/vehicles-svc`
 
-!> [!NOTE]
-
+> [! NOTE]
 > El name puede ser el nombre del ambiente
 
 ## Como desinstalar el chart manualmente
