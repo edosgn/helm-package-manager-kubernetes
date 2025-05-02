@@ -1,0 +1,40 @@
+name: Release Helm Chart
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    name: Package & Push Helm Chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: Login to Helm Registry (OCI)
+        env:
+          HELM_REGISTRY_URL: ghcr.io
+          HELM_USERNAME: ${{ secrets.HELM_USERNAME }}
+          HELM_PASSWORD: ${{ secrets.HELM_PASSWORD }}
+        run: |
+          echo "$HELM_PASSWORD" | helm registry login $HELM_REGISTRY_URL -u "$HELM_USERNAME" --password-stdin
+
+      - name: Download chart dependencies
+        run: |
+          helm dependency update charts/vehicles-svc
+
+      - name: Package chart
+        run: |
+          helm package charts/vehicles-svc --destination packaged
+
+      - name: Push chart
+        env:
+          HELM_REGISTRY_URL: ghcr.io
+        run: |
+          helm push packaged/vehicles-svc-*.tgz oci://$HELM_REGISTRY_URL/santibc/helm-charts
